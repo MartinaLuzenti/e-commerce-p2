@@ -14,5 +14,15 @@ const registrarUsuario = async (req, res) => {
   }
 };
 
-module.exports = { registrarUsuario };
+const listarUsuarios =async (req,res)=> {
+  try {
+    const usuarios = await Usuario.find();
+    res.status(200).json(usuarios);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener usuarios' });
+  }
+}
+
+module.exports = { registrarUsuario, 
+  listarUsuarios };
 
