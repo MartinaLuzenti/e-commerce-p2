@@ -1,5 +1,6 @@
 const Usuario = require("../models/usuario");
 const crypto = require("crypto");
+const jwt = require('jsonwebtoken');
 
 const registrarUsuario = async (req, res) => {
   const { username, email, contraseña } = req.body;
@@ -30,27 +31,34 @@ const login = async (req, res) => {
     if (!usuario) {
       return res.status(401).json({ error: "Usuario no existente" });
     }
-
-    // Verificar la contraseña
-    if(esContraseñaValida(contraseña, usuario.salt,usuario.password) === false) {
-      return res.status(401).json({ error: "Contraseña incorrecta" });
+    // Usa el método del modelo para validar la contraseña
+    const esValida = usuario.esContraseñaValida(contraseña);
+    if (!esValida) {
+      return res.status(401).json({ mensaje: "Contraseña incorrecta" });
     }
-
-    res.status(200).json({ mensaje: "Inicio de sesión exitoso", usuario });
-
+    // Generar el token JWT
+    const token = generarToken(usuario);
+    res.status(200).json({ token });
   } catch (error) {
     res.status(500).json({ error: "Error al iniciar sesión" });
   }
 };
 
-function esContraseñaValida(passwordIngresado, salt,passwordAlmacenada) {
-  const passwordCifrada = crypto.createHmac("sha256", salt).update(passwordIngresado).digest("hex");
-  // Aquí deberías comparar la contraseña cifrada con la almacenada en la base de datos
-  if(passwordCifrada===passwordAlmacenada) {
-    return true;
-  } else {
-    return false;
-  }
+function generarToken(usuario) {
+  // Datos del usuario que se codificarán en el token
+  const payload = {
+    sub: usuario.id, // Identificador único del usuario
+    username: usuario.username, // Nombre de usuario
+    rol: usuario.rol, // Rol del usuario, ej: 'admin', 'usuario', etc.
+  };
+  // Clave secreta utilizada para firmar el token (mantenerla segura)
+  const secret = "mi_clave_secreta";
+  // Opciones adicionales: Por ejemplo, caducidad del token
+  const opciones = {
+    expiresIn: "1h", // El token expirará después de 1 hora
+  };
+  // Firmar el token con el payload, la clave secreta y las opciones
+  const token = jwt.sign(payload, secret, opciones);
+  return token;
 }
-
 module.exports = { registrarUsuario, listarUsuarios, login };

@@ -44,6 +44,12 @@ UsuariosSchema.pre('save', function (next) {
   next();
 });
 
-
+UsuariosSchema.methods.esContraseñaValida = function (inputPassword) {
+  const hash = crypto
+    .createHmac('sha256', this.salt)
+    .update(inputPassword)
+    .digest('hex');
+  return this.contraseña === hash;
+};
 
 module.exports = mongoose.model('Usuario', UsuariosSchema);
