@@ -10,16 +10,22 @@ const UsuariosSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  contraseña: {
+ 
+   contraseña: {
     type: String,
     required: true,
   },
+  
   rol: {
     type: String,
     enum: ["usuario", "admin"],
     default: "usuario",
     required: true,
   },
+  salt: {
+    type: String,
+    required: false,
+  }
 });
 function hashPassword(password, salt) {
   const hash = crypto.createHmac("sha256", salt).update(password).digest("hex");
@@ -38,13 +44,6 @@ UsuariosSchema.pre('save', function (next) {
   next();
 });
 
-UsuariosSchema.methods.validarPassword = function (inputPassword) {
-  const hash = crypto
-    .createHmac('sha256', this.salt)
-    .update(inputPassword)
-    .digest('hex');
 
-  return this.contraseña === hash;
-};
 
 module.exports = mongoose.model('Usuario', UsuariosSchema);
