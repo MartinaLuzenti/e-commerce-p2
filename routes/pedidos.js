@@ -1,10 +1,13 @@
  const express = require('express');
 const router = express.Router();
-const pedidosController = require('../controllers/pedidosController');
+const 
+{
+    crearPedido
+} = require('../controllers/pedidosController');
 const { verificarToken, verificarRol } = require('../middlewares/auth');
 
 
-router.post('/', verificarToken, pedidosController.crearPedido);
+router.post('/', pedidosController.crearPedido);
 router.get('/mios', verificarToken, pedidosController.historialUsuario);
 
 

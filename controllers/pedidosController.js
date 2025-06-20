@@ -1,7 +1,7 @@
 const Pedido = require("../models/Pedido");
 const Producto = require("../models/producto");
 
-exports.crearPedido = async (req, res) => {
+const crearPedido = async (req, res) => {
   try {
     const { productos } = req.body;
 
@@ -28,24 +28,30 @@ exports.crearPedido = async (req, res) => {
   }
 };
 
-exports.historialUsuario = async (req, res) => {
+const historialUsuario = async (req, res) => {
   const pedidos = await Pedido.find({ usuario: req.usuario._id }).populate(
     "productos.producto"
   );
   res.json(pedidos);
 };
 
-exports.todosLosPedidos = async (req, res) => {
+const todosLosPedidos = async (req, res) => {
   const pedidos = await Pedido.find()
     .populate("usuario")
     .populate("productos.producto");
   res.json(pedidos);
 };
 
-exports.actualizarEstado = async (req, res) => {
+const actualizarEstado = async (req, res) => {
   const { id } = req.params;
   const { estado } = req.body;
 
   const pedido = await Pedido.findByIdAndUpdate(id, { estado }, { new: true });
   res.json(pedido);
 };
+module.exports = {
+  crearPedido,
+  historialUsuario,
+  todosLosPedidos,
+  actualizarEstado,
+};  
